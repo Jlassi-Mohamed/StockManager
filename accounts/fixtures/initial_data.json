@@ -1,0 +1,198 @@
+[
+  {
+    "model": "accounts.module",
+    "pk": 1,
+    "fields": {
+      "name": "Users Management"
+    }
+  },
+  {
+    "model": "accounts.module",
+    "pk": 2,
+    "fields": {
+      "name": "Project Management"
+    }
+  },
+  {
+    "model": "accounts.module",
+    "pk": 3,
+    "fields": {
+      "name": "Order Management"
+    }
+  },
+  {
+    "model": "accounts.module",
+    "pk": 4,
+    "fields": {
+      "name": "Product Management"
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 1,
+    "fields": {
+      "name": "create_user",
+      "module": 1
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 2,
+    "fields": {
+      "name": "retrieve_user",
+      "module": 1
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 3,
+    "fields": {
+      "name": "update_user",
+      "module": 1
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 4,
+    "fields": {
+      "name": "delete_user",
+      "module": 1
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 5,
+    "fields": {
+      "name": "create_project",
+      "module": 2
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 6,
+    "fields": {
+      "name": "retrieve_project",
+      "module": 2
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 7,
+    "fields": {
+      "name": "update_project",
+      "module": 2
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 8,
+    "fields": {
+      "name": "delete_project",
+      "module": 2
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 9,
+    "fields": {
+      "name": "validate_order",
+      "module": 3
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 10,
+    "fields": {
+      "name": "cancel_order",
+      "module": 3
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 11,
+    "fields": {
+      "name": "create_product",
+      "module": 4
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 12,
+    "fields": {
+      "name": "retrieve_product",
+      "module": 4
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 13,
+    "fields": {
+      "name": "update_product",
+      "module": 4
+    }
+  },
+  {
+    "model": "accounts.permission",
+    "pk": 14,
+    "fields": {
+      "name": "delete_product",
+      "module": 4
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 1,
+    "fields": {
+      "name": "Admin",
+      "permissions": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 2,
+    "fields": {
+      "name": "Product Creator",
+      "permissions": [11]
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 3,
+    "fields": {
+      "name": "Product Editor",
+      "permissions": [13]
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 4,
+    "fields": {
+      "name": "Product Deleter",
+      "permissions": [14]
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 5,
+    "fields": {
+      "name": "Product Viewer",
+      "permissions": [12]
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 6,
+    "fields": {
+      "name": "Product Manager",
+      "permissions": [11, 12, 13, 14]
+    }
+  },
+  {
+    "model": "accounts.role",
+    "pk": 7,
+    "fields": {
+      "name": "Product Consultant",
+      "permissions": [12, 13]
+    }
+  }
+]
