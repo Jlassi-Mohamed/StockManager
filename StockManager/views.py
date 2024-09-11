@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+
 import accounts.serializers
 
 
@@ -27,12 +28,14 @@ class Home(APIView):
             username = token.get('username')
             role = token.get('role')
             permissions = token.get('permissions')
-            return HttpResponse({
+            return Response({
                 'username': username,
                 'role': role,
                 'permissions': permissions,
                 'token': token
             })
-        return HttpResponseRedirect(reverse('accounts:login'))
+        return HttpResponse({
+            "message": "Not authenticated",
+        })
 
 

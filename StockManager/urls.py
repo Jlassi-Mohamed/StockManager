@@ -17,11 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from StockManager.views import Home
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include("api.urls")),
     path('accounts/', include("accounts.urls")),
-    path('', Home.as_view(), name='home'),
+    path('products/', include("products.urls")),
 ]

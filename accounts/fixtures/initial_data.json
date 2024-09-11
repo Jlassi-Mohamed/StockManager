@@ -168,7 +168,7 @@
     "pk": "Product Deleter",
     "fields": {
       "name": "Product Deleter",
-      "permissions": ["delete_product"]
+      "permissions": ["delete_product", "retrieve_product"]
     }
   },
   {

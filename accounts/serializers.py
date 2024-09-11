@@ -1,20 +1,22 @@
-from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
 
-from .models import CustomUser, UserRole, Role, Permission
+from products.models import Order
+from .models import CustomUser, Role, UserRole, Notification, Permission
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username
+        token['first_name'] = user.first_name
+        token['last_name'] = user.last_name
+        token['profile_picture'] = user.profile_picture
         try:
             user_role = UserRole.objects.get(user=user)
             role = user_role.role
-            token['role'] = role.name
+            token['role'] = str(role)
             token['permissions'] = [perm.name for perm in role.permissions.all()]
         except UserRole.DoesNotExist:
             token['role'] = None
@@ -23,47 +25,88 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class SignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
+from django.core.exceptions import ValidationError
+from rest_framework import serializers
+from .models import CustomUser, Role, UserRole
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['name']
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ['name']
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(required=False)
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=CustomUser.objects.all())]
     )
-
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'username', 'email', 'password', 'password2', 'bio', 'profile_picture')
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password', 'bio', 'profile_picture', 'role')
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
 
-        Required_fields = ('first_name', 'username', 'email', 'password', 'password2')
-    def validate(self, attrs): # deser
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."})
-        return attrs
+    def validate(self, data):
+        role_name = data.get('role')
+        if not self.context.get('is_login') and role_name is None:
+            raise serializers.ValidationError("Role name is required.")
 
-    def create(self, validated_data): #ser
-        user = CustomUser.objects.create(
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            username=validated_data['username'],
-            email=validated_data['email'],
-            bio=validated_data['bio'],
-            profile_picture=validated_data['profile_picture']
-        )
+        if role_name and not Role.objects.filter(name=role_name).exists():
+            raise serializers.ValidationError(f"Role '{role_name}' does not exist.")
 
-        user.set_password(validated_data['password'])
+        return data
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        role_name = validated_data.pop('role', None)
+
+        user = CustomUser(**validated_data)
+
+        if self.context.get('is_login'):
+            try:
+                admin_role = Role.objects.get(name="Admin")
+                user.role = admin_role.name
+            except Role.DoesNotExist:
+                raise serializers.ValidationError("Role 'Admin' does not exist.")
+        elif role_name:
+            try:
+                role = Role.objects.get(name=role_name)
+                user.role = role.name
+            except Role.DoesNotExist:
+                raise serializers.ValidationError(f"Role '{role_name}' does not exist.")
+        else:
+
+            try:
+                product_viewer_role = Role.objects.get(name="Product Viewer")
+                user.role = product_viewer_role.name
+            except Role.DoesNotExist:
+                raise serializers.ValidationError("Role 'Product Viewer' does not exist.")
+
+        user.set_password(password)
+
         user.save()
-        role = Role.objects.get(name="Admin")
-        UserRole.objects.create(user=user, role=role)
-        all_permissions = Permission.objects.all()
-        user.user_permissions.set(all_permissions)
+
+        if user.role:
+            try:
+                role = Role.objects.get(name=user.role)
+                UserRole.objects.get_or_create(user=user, role=role)
+            except Exception as e:
+                raise serializers.ValidationError(f"An error occurred while creating the UserRole: {str(e)}")
 
         return user
 
-
-class UserSerializer(serializers.ModelSerializer):
+class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = ('first_name', 'last_name', 'username', 'email', 'password', 'bio', 'profile_picture')
+        model = Notification
+        fields = ['id', 'message', 'created_at']
+        read_only_fields = ['created_at']
